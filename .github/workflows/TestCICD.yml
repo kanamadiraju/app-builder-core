@@ -21,6 +21,9 @@ jobs:
  
     - name: Run the dev-setup or setup project dependencies
       run: npm run dev-setup
+      
+    - name: Install pod dependencies
+      run: cd template && cd ios && pod install
      
     - name: Trigger IOS build
       run: cd template && cd ios && ls | grep .xcworkspace | xargs open
