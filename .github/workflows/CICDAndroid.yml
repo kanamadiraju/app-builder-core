@@ -23,7 +23,7 @@ jobs:
       run: npm run dev-setup
      
     - name: Trigger Android Linux build
-      run: cd template && cd android && ./gradlew clean && ./gradlew assembleRelease && react-native run-android --variant=release
+      run: cd template && cd android && ./gradlew assembleRelease --stacktrace
      
     - name: Upload Android Artifact
       uses: actions/upload-artifact@v2.3.1
