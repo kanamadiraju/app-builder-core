@@ -4,8 +4,8 @@ on:
     branches: [master]
  
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  Android_build:
+    runs-on: ubuntu-18.04
     container: reactnativecommunity/react-native-android
     steps:
     - uses: actions/checkout@v2
@@ -13,7 +13,7 @@ jobs:
       run: npm run dev-setup
      
     - name: Trigger Android Linux build
-      run: cd template && cd android && ./gradlew assembleRelease
+      run: cd template && cd android && ./gradlew assembleRelease --stacktrace
  
     - name: Upload Android Artifact
       uses: actions/upload-artifact@v2.3.1
