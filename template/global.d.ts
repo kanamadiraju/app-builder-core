@@ -71,5 +71,9 @@ interface ConfigInterface {
   MICROSOFT_CLIENT_ID: string;
   SLACK_CLIENT_ID: string;
   APPLE_CLIENT_ID: string;
+  EVENT_MODE: boolean;
+  RAISE_HAND: boolean;
+  GEO_FENCING: boolean;
+  LOG_ENABLED: boolean;
 }
 declare var $config: ConfigInterface;

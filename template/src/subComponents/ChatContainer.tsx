@@ -13,15 +13,17 @@ import React, {useContext, useRef} from 'react';
 import {
   View,
   ScrollView,
-  Text,
-  TouchableOpacity,
   StyleSheet,
-  Image,
+  TouchableOpacity,
   Platform,
+  Text,
+  useWindowDimensions,
 } from 'react-native';
+import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
 import ChatContext from '../components/ChatContext';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {ImageIcon} from '../../agora-rn-uikit';
+import TextWithTooltip from './TextWithTooltip';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -29,25 +31,36 @@ import {BtnTemplate} from '../../agora-rn-uikit';
  * and maps it to a ChatBubble
  */
 const ChatContainer = (props: any) => {
-  const {selectedUser, privateActive, setPrivateActive, selectedUsername} =
+  const {userList} = useContext(ChatContext);
+  const {height, width} = useWindowDimensions();
+  const {selectedUserID, privateActive, setPrivateActive, selectedUsername} =
     props;
   const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
+
   const scrollViewRef = useRef<ScrollView>(null);
+
   return (
     <View style={style.containerView}>
-      {privateActive ? (
-        <View style={style.row}>
+      {privateActive && (
+        <TouchableOpacity
+          style={style.row}
+          onPress={() => setPrivateActive(false)}>
           <View style={style.backButton}>
-            <BtnTemplate
-              style={[style.backIcon]}
-              onPress={() => setPrivateActive(false)}
-              name={'backBtn'}
+            <ImageIcon style={[style.backIcon]} name={'backBtn'} />
+          </View>
+          <View style={{flex: 1}}>
+            <TextWithTooltip
+              style={[
+                style.name,
+                {
+                  flexShrink: 1,
+                  fontSize: RFValue(16, height > width ? height : width),
+                },
+              ]}
+              value={selectedUsername}
             />
           </View>
-          <Text style={style.name}>{selectedUsername}</Text>
-        </View>
-      ) : (
-        <></>
+        </TouchableOpacity>
       )}
       <ScrollView
         ref={scrollViewRef}
@@ -66,8 +79,8 @@ const ChatContainer = (props: any) => {
               />
             );
           })
-        ) : privateMessageStore[selectedUser.uid] ? (
-          privateMessageStore[selectedUser.uid].map((message: any) => {
+        ) : privateMessageStore[selectedUserID] ? (
+          privateMessageStore[selectedUserID].map((message: any) => {
             return (
               <ChatBubble
                 isLocal={localUid === message.uid}
@@ -81,6 +94,11 @@ const ChatContainer = (props: any) => {
         ) : (
           <></>
         )}
+        {userList[selectedUserID]?.offline && (
+          <View style={style.infoTextView}>
+            <Text style={style.infoText}>User is offline</Text>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -91,8 +109,16 @@ const style = StyleSheet.create({
   row: {
     flexDirection: 'row',
     marginTop: 2,
-    alignItems: 'center',
+    alignItems: 'baseline',
     paddingVertical: 10,
+    ...Platform.select({
+      android: {
+        height: 40,
+      },
+      ios: {
+        height: 40,
+      },
+    }),
   },
   backButton: {
     marginHorizontal: 10,
@@ -100,14 +126,25 @@ const style = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   name: {
-    fontSize: 18,
     fontWeight: Platform.OS === 'web' ? '500' : '700',
     color: $config.PRIMARY_FONT_COLOR,
-    alignSelf: 'center',
+    textAlign: 'left',
+    marginRight: 10,
   },
   backIcon: {
     width: 20,
-    height: 12,
+    height: 20,
+  },
+  infoTextView: {
+    marginVertical: 2,
+    flexDirection: 'row',
+  },
+  infoText: {
+    color: $config.PRIMARY_FONT_COLOR + '60',
+    fontWeight: '500',
+    fontSize: 14,
+    flex: 1,
+    textAlign: 'center',
   },
 });
 export default ChatContainer;
